@@ -10,16 +10,6 @@ def home():
 
 @app.post("/predict")
 def predict_crop(data: CropInput):
-    values = [
-        data.nitrogen,
-        data.phosphorus,
-        data.potassium,
-        data.temperature,
-        data.humidity,
-        data.ph,
-        data.rainfall
-    ]
-
-    result = predict(values)
+    result = predict(data)
 
     return {"crop": result}

@@ -1,4 +1,3 @@
-venv/
 cropvenv/
 __pycache__/
 .env

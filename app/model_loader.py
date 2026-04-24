@@ -1,24 +1,32 @@
 import joblib
+import numpy as np
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-model = joblib.load(os.getenv("MODEL_PATH"))
-minmax = joblib.load(os.getenv("MINMAX_PATH"))
-stand = joblib.load(os.getenv("STAND_PATH"))
-
-# 👇 ADD THIS
-label_encoder = joblib.load("model/label_encoder.pkl")
+model = joblib.load(os.getenv("MODEL_PATH", "model/model.pkl"))
+scaler = joblib.load(os.getenv("SCALER_PATH", "model/scaler.pkl"))
+label_encoder = joblib.load(os.getenv("ENCODER_PATH", "model/label_encoder.pkl"))
 
 def predict(data):
-    data = [data]
-    data = minmax.transform(data)
-    data = stand.transform(data)
+    input_data = np.array([[
+        data.nitrogen,
+        data.phosphorus,
+        data.potassium,
+        data.temperature,
+        data.humidity,
+        data.ph,
+        data.rainfall
+    ]])
 
-    result = model.predict(data)
+    # Scale input
+    input_scaled = scaler.transform(input_data)
 
-    # 👇 Convert number → crop name
-    crop_name = label_encoder.inverse_transform(result)
+    # Predict
+    prediction = model.predict(input_scaled)
 
-    return crop_name[0]
+    # Decode label
+    result = label_encoder.inverse_transform(prediction)
+
+    return result[0]
